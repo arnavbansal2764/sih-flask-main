@@ -4,18 +4,19 @@ import numpy as np
 import scipy.io.wavfile as wavfile
 import sounddevice as sd
 from gtts import gTTS
-import playsound
+# import playsound
+import pyttsx3
 import chromadb
 from chromadb.config import Settings
 import speech_recognition as sr
-import PyPDF2
+from pypdf import PdfReader
 from groq import Groq
 import os
 
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 class InterviewAssistant:
-    def __init__(self, api_key, pdf_path, collection_name="interview_answers",n_q = 2,duration= 30):
+    def _init_(self, api_key, pdf_path, collection_name="interview_answers",n_q = 2,duration= 30):
         self.api_key = api_key
         self.client = Groq(api_key=api_key)
         self.pdf_path = pdf_path
@@ -28,7 +29,7 @@ class InterviewAssistant:
     def extract_text_from_pdf(self, pdf_path):
         text = ""
         with open(pdf_path, 'rb') as file:
-            reader = PyPDF2.PdfReader(file)
+            reader = PdfReader(file)
             for page in reader.pages:
                 text += page.extract_text() + "\n"
         return text.strip()
@@ -46,10 +47,14 @@ class InterviewAssistant:
         return q_a_dict
 
     def text_to_speech(self, text, lang='en'):
-        tts = gTTS(text=text, lang=lang, slow=False)
-        with tempfile.NamedTemporaryFile(delete=True, suffix='.mp3') as temp_audio_file:
-            tts.save(temp_audio_file.name)
-            playsound.playsound(temp_audio_file.name)
+        # tts = gTTS(text=text, lang=lang, slow=False)
+        # with tempfile.NamedTemporaryFile(delete=True, suffix='.mp3') as temp_audio_file:
+        #     tts.save(temp_audio_file.name)
+        #     playsound.playsound(temp_audio_file.name)
+        engine = pyttsx3.init()
+        engine.setProperty('rate', 150)
+        engine.say(text)
+        engine.runAndWait()
 
     def record_answer(self, threshold=0.1, fs=44100):
         print("Recording your answer...")
@@ -129,9 +134,6 @@ class InterviewAssistant:
         insight = self.analyze_responses(list_n)
         print(insight)
         self.text_to_speech(insight)
-
-api_key = "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"
+api_key = "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" 
 pdf_path = "ak.pdf"
 
-interview_assistant = InterviewAssistant(api_key, pdf_path,n_q = 2,duration=1000)
-interview_assistant.conduct_interview()

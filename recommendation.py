@@ -1,7 +1,7 @@
 from groq import Groq
 import os
 
-client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
+client = Groq(api_key="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")
 
 def get_bot_response(user_input,resume_text):
     chat_completion = client.chat.completions.create(

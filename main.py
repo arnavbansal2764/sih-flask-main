@@ -1,10 +1,10 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 import requests
 import os
 from similarity_score import pdf_to_text, calculate_similarity_score
 from resume_builder import resume_builder
 from recommendation import generate_recommendation
-
+import interview_resume
 app = Flask(__name__)
 
 def download_pdf(url, save_path):
@@ -64,6 +64,23 @@ def recommendation():
         return jsonify({'response': response})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+@app.route('/interview-resume', methods=['POST'])
+def interview_resume_route():
+    data = request.get_json()
+
+    if 'resume_url' not in data:
+        return jsonify({"error": "resume_url is required."}), 400
+
+    resume_url = data['resume_url']
+    
+    download_pdf(resume_url, 'ak.pdf')
+    try:
+        interview = interview_resume.InterviewAssistant()
+        interview.conduct_interview()
+        return jsonify({"status": "Interview completed."}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)

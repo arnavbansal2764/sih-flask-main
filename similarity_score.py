@@ -55,7 +55,7 @@ def calculate_entity_match_score(job_entities, resume_entities):
     union = len(job_entities.union(resume_entities))
     return intersection / union if union != 0 else 0
 
-def calculate_similarity_score(job_description, resume_text):
+def calculate_similarity_score(resume_text):
     job_embedding = model.encode(job_description, convert_to_tensor=True)
     resume_embedding = model.encode(resume_text, convert_to_tensor=True)
     semantic_similarity = util.cos_sim(job_embedding, resume_embedding).item()

@@ -1,7 +1,7 @@
 from groq import Groq
 import os
 
-client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
+client = Groq(api_key="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")
 
 def resume_builder(resume, job_description):
     completion = client.chat.completions.create(
