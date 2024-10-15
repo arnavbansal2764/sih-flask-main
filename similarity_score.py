@@ -6,23 +6,6 @@ import spacy
 # Load models
 model = SentenceTransformer('all-MiniLM-L6-v2')
 nlp = spacy.load('en_core_web_sm')
-job_description = """
-As an AI intern at Wastelink, you'll have the opportunity to work on cutting-edge solutions. Your role will involve using your knowledge of artificial intelligence and machine learning to develop innovative tools and algorithms that will contribute to our sustainability efforts.
-
-You will work on designing and implementing computer vision algorithms to detect and identify objects and extract specific data from them.
-
-Responsibilities include building a prototype, data annotation, model training using frameworks like TensorFlow or PyTorch, and integration with warehouse management systems.
-
-This is an excellent opportunity to gain hands-on experience in AI and machine learning, contributing to the automation and efficiency of our warehousing processes.
-
-If you are a passionate and driven individual with a strong background in AI and machine learning, this internship at Wastelink is the perfect opportunity to gain hands-on experience and make a real impact in the field of sustainable waste management. Apply now and join us in shaping a cleaner and greener future!
-
-About Company: Wastelink is a food surplus management company that helps food manufacturers manage their surplus and waste by transforming it into nutritional feeds for animals. Our mission is to supercharge the circular economy and eliminate food waste.
-
-We process thousands of tons of food surplus into high-energy feed ingredients trusted by the world's leading feed brands while providing food manufacturers with a truly sustainable way of managing their waste.
-Desired Skills and Experience
-Machine Learning, Artificial Intelligence, Data Science, Deep Learning, Data Structures
-"""
 def pdf_to_text(pdf_path):
     doc = fitz.open(pdf_path)
     text = ""
@@ -55,7 +38,7 @@ def calculate_entity_match_score(job_entities, resume_entities):
     union = len(job_entities.union(resume_entities))
     return intersection / union if union != 0 else 0
 
-def calculate_similarity_score(resume_text):
+def calculate_similarity_score(resume_text,job_description):
     job_embedding = model.encode(job_description, convert_to_tensor=True)
     resume_embedding = model.encode(resume_text, convert_to_tensor=True)
     semantic_similarity = util.cos_sim(job_embedding, resume_embedding).item()
