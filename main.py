@@ -19,6 +19,7 @@ def download_pdf(url, save_path):
 def similarity_score():
     data = request.json
     pdf_url = data.get('pdf_url')
+    job_description = data.get('job_description')
     if not pdf_url:
         return jsonify({'error': 'PDF URL is required'}), 400
     pdf_path = 'downloaded_resume.pdf'
@@ -26,7 +27,7 @@ def similarity_score():
     if not download_pdf(pdf_url, pdf_path):
         return jsonify({'error': 'Failed to download PDF'}), 500
     resume_text = pdf_to_text(pdf_path)
-    scores = calculate_similarity_score(resume_text)
+    scores = calculate_similarity_score(resume_text,job_description)
 
     os.remove(pdf_path)
 
