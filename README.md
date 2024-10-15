@@ -12,7 +12,8 @@ The request body should be a JSON object containing a `pdf_url` key with the lin
 
 ```json
 {
-  "pdf_url": "https://utfs.io/f/uYCJGxAcJId8uk6is3AcJId8F3SNyhRlvDtHqWgfLOrVjk70"
+  "pdf_url": "https://utfs.io/f/uYCJGxAcJId8uk6is3AcJId8F3SNyhRlvDtHqWgfLOrVjk70",
+  "job_description":"..........................................................",
 }
 ```
 
