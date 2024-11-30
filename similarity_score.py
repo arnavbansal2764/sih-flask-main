@@ -1,3 +1,4 @@
+import json
 from sentence_transformers import SentenceTransformer, util
 import fitz
 from sklearn.feature_extraction.text import TfidfVectorizer
