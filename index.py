@@ -150,6 +150,7 @@ while True:
                     analysis_results = []  
 
                     for item in question_responses:
+                        print("item: ",item)
                         question = item.get('question')
                         transcript = item.get('transcript')
 
@@ -158,14 +159,14 @@ while True:
 
                         feedback = assistant.analyze_response(question, transcript)
 
-                        analysis_result = {
+                        analysisresult = {
                             "question": question,
                             "transcript": transcript,
                             "feedback": feedback
                         }
-                        analysis_results.append(analysis_result)
-
-                    analysis_result_json = json.dumps(analysis_result)
+                        analysis_results.append(analysisresult)
+                        print(analysis_results)
+                    analysis_result_json = json.dumps(analysis_results)
                     score_json = json.dumps({
                         "type": "INTERVIEW_ANALYSIS",
                         "payload": {

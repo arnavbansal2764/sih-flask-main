@@ -48,6 +48,15 @@ while True:
             print(json.dumps(data, indent=4))
             if type == "GET_RECOMMENDATION":
                 job_description = data.get('job_description')
+                responsibilities = data.get('responsibilities')
+                requirements = data.get('requirements')
+                experience = data.get('experience')
+                location = data.get('location')
+                jobType = data.get('jobType')
+                mode = data.get('mode')
+                organization = data.get('organization')
+                title = data.get('title')
+                salary = data.get('salary')
                 resume = data.get('resume')
                 if not resume or not job_description:
                     redisClient.publish(clientId,json.dumps({"type": "ERROR", "message": "Job Description and Resume Absent"}))
@@ -58,7 +67,7 @@ while True:
                         redisClient.publish(clientId,json.dumps({"type": "ERROR", "message": "Not able to download PDF"}))
                         continue
                     resume_text = pdf_to_text(pdf_path)
-                    recommendation = generate_recommendation(resume_text,job_description)
+                    recommendation = generate_recommendation(resume_text,job_description,responsibilities,requirements,experience,location,jobType,mode,organization,title,salary)
                     os.remove(pdf_path)
                     similarity_score_json = {
                         "type": "RECOMMENDATION",
@@ -134,6 +143,7 @@ while True:
                     analysis_results = []  
 
                     for item in question_responses:
+                        print("item: ",item)
                         question = item.get('question')
                         transcript = item.get('transcript')
 
@@ -142,14 +152,14 @@ while True:
 
                         feedback = assistant.analyze_response(question, transcript)
 
-                        analysis_result = {
+                        analysisresult = {
                             "question": question,
                             "transcript": transcript,
                             "feedback": feedback
                         }
-                        analysis_results.append(analysis_result)
-
-                    analysis_result_json = json.dumps(analysis_result)
+                        analysis_results.append(analysisresult)
+                        print(analysis_results)
+                    analysis_result_json = json.dumps(analysis_results)
                     score_json = json.dumps({
                         "type": "INTERVIEW_ANALYSIS",
                         "payload": {
