@@ -6,6 +6,7 @@ from resume_builder import resume_builder
 from recommendation import generate_recommendation
 from interview import InterviewAssistant
 import requests
+from checkpoints import get_courses
 
 redisClient = redis.Redis()
 
@@ -47,18 +48,30 @@ while True:
             
             print(json.dumps(data, indent=4))
             if type == "GET_RECOMMENDATION":
-                job_description = data.get('job_description')
+                job_description = data.get('description')
+                responsibilities = data.get('responsibilities')
+                requirements = data.get('requirements')
+                experience = data.get('experience')
+                location = data.get('location')
+                jobType = data.get('jobType')
+                mode = data.get('mode')
+                organization = data.get('organization')
+                title = data.get('title')
+                salary = data.get('salary')
                 resume = data.get('resume')
+                print("here in recommendation 3 resume: ",resume, " description ", job_description)
                 if not resume or not job_description:
                     redisClient.publish(clientId,json.dumps({"type": "ERROR", "message": "Job Description and Resume Absent"}))
                     continue
                 try:
+                    print("here in recommendation 4")
                     pdf_path = 'downloaded_resume.pdf'
                     if not download_pdf(resume, pdf_path):
                         redisClient.publish(clientId,json.dumps({"type": "ERROR", "message": "Not able to download PDF"}))
                         continue
                     resume_text = pdf_to_text(pdf_path)
-                    recommendation = generate_recommendation(resume_text,job_description)
+                    print("here in recommendation 5")
+                    recommendation = generate_recommendation(resume_text,job_description,responsibilities,requirements,experience,location,jobType,mode,organization,title,salary)
                     os.remove(pdf_path)
                     similarity_score_json = {
                         "type": "RECOMMENDATION",
@@ -66,8 +79,10 @@ while True:
                             "recommendation": recommendation
                         }
                     }
+                    print(recommendation)
                     json_string = json.dumps(similarity_score_json)
                     redisClient.publish(clientId,json_string)
+                    print("published")
                 except Exception as e:
                     redisClient.publish(clientId,json.dumps({"type": "ERROR", "payload": {"message": "Not able to download PDF"}}))
                 pass
@@ -134,6 +149,7 @@ while True:
                     analysis_results = []  
 
                     for item in question_responses:
+                        print("item: ",item)
                         question = item.get('question')
                         transcript = item.get('transcript')
 
@@ -142,14 +158,14 @@ while True:
 
                         feedback = assistant.analyze_response(question, transcript)
 
-                        analysis_result = {
+                        analysisresult = {
                             "question": question,
                             "transcript": transcript,
                             "feedback": feedback
                         }
-                        analysis_results.append(analysis_result)
-
-                    analysis_result_json = json.dumps(analysis_result)
+                        analysis_results.append(analysisresult)
+                        print(analysis_results)
+                    analysis_result_json = json.dumps(analysis_results)
                     score_json = json.dumps({
                         "type": "INTERVIEW_ANALYSIS",
                         "payload": {
@@ -158,6 +174,29 @@ while True:
                     })
                     redisClient.publish(clientId,score_json)
                     print("published")
+                except Exception as e:
+                    print(e)
+                    redisClient.publish(clientId,json.dumps({"type": "ERROR", "payload": {"message": "An Error Occurred"}}))
+                pass
+            elif type=="GET_CHECKPOINTS":
+                try:
+                    current = data.get('currentStatus')
+                    end_goal = data.get('endGoal')
+                    if not current:
+                        redisClient.publish(clientId,json.dumps({"type": "ERROR", "message": "Current Status Absent"}))
+                        continue
+                    if not end_goal:
+                        redisClient.publish(clientId,json.dumps({"type": "ERROR", "message": "Final Status Absent"}))
+                        continue
+                    courses = get_courses(api_key = "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", current =current, end_goal = end_goal, num_courses=5)
+                    response_json = json.dumps({
+                        "type": "CHECKPOINTS",
+                        "payload": {
+                            "courses": courses
+                        }
+                    })
+                    print(courses)
+                    redisClient.publish(clientId,response_json)
                 except Exception as e:
                     print(e)
                     redisClient.publish(clientId,json.dumps({"type": "ERROR", "payload": {"message": "An Error Occurred"}}))
