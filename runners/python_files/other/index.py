@@ -7,6 +7,7 @@ from recommendation import generate_recommendation
 from interview import InterviewAssistant
 import requests
 from checkpoints import get_courses
+from jobScraper import get_links
 
 redisClient = redis.Redis()
 
@@ -201,6 +202,37 @@ while True:
                     print(e)
                     redisClient.publish(clientId,json.dumps({"type": "ERROR", "payload": {"message": "An Error Occurred"}}))
                 pass
+            elif type=="GET_JOBS_SCRAPED":
+                try:
+                    jobType = data.get('jobType')
+                    role = data.get('role')
+                    location = data.get('location')
+                    years = data.get('years')
+                    if not jobType:
+                        redisClient.publish(clientId,json.dumps({"type": "ERROR", "message": "jobType Absent"}))
+                        continue
+                    if not role:
+                        redisClient.publish(clientId,json.dumps({"type": "ERROR", "message": "role Absent"}))
+                        continue
+                    if not location:
+                        redisClient.publish(clientId,json.dumps({"type": "ERROR", "message": "location Absent"}))
+                        continue
+                    if not years:
+                        redisClient.publish(clientId,json.dumps({"type": "ERROR", "message": "years Absent"}))
+                        continue
+                    jobs = get_links(job_type=jobType, role=role, location=location, years=years)
+                    response_json = json.dumps({
+                        "type": "SCRAPED_JOB",
+                        "payload": {
+                            "jobs": jobs
+                        }
+                    })
+                    print(jobs)
+                    redisClient.publish(clientId,response_json)
+                except Exception as e:
+                    print(e)
+                    redisClient.publish(clientId,json.dumps({"type": "ERROR", "payload": {"message": "An Error Occurred"}}))
+            pass
     except Exception as e:
         print(e)
         redisClient.publish(clientId,json.dumps({"type": "ERROR", "payload": {"message": "Not able to download PDF"}}))
